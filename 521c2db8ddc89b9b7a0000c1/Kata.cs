@@ -1,35 +1,42 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-//https://www.codewars.com/kata/521c2db8ddc89b9b7a0000c1/train/csharp
+
 namespace CodeWars.Kata_521c2db8ddc89b9b7a0000c1
 {
 	public class SnailSolution
 	{
 		public static int[] Snail(int[][] array)
 		{
-			List<Tuple<int, int>> coordinates = new List<Tuple<int, int>>();
-			int x = 0, y = 0, xDir = 1, yDir = 0, length = array.Length, middle = length / 2;
-			coordinates.Add(new Tuple<int, int>(x, y));
-			while ((x != middle) || (y != middle))
+			List<int> trail = new List<int>();
+			List<List<bool>> travelled = array.Select(x => x.Select(y => false).ToList()).ToList();
+			int i = 0, iDir = 1, iLength = array[0].Length, r = 0, rDir = 0, rLength = array.Length;
+			while (travelled.Any(x => x.Any(y => !y)))
 			{
-				if ((x + xDir < 0) || (x + xDir == length) || (y + yDir < 0) || (y + yDir == length))
+				if (!travelled[r][i])
 				{
-					RotateClockwise(xDir, yDir);
+					trail.Add(array[r][i]);
+					travelled[r][i] = true;
 				}
-				int x1 = x + xDir; int y1 = y + yDir;
-				Tuple<int, int> newCoordinates = new Tuple<int, int>(x1, y1);
-				if (coordinates.Contains(newCoordinates))
+				int nextR = r + rDir;
+				int nextI = i + iDir;
+				if ((nextI < 0) || (nextI == iLength) || (nextR < 0) || (nextR == rLength))
 				{
-					RotateClockwise(xDir, yDir);
+					RotateClockwise(ref iDir, ref rDir);
 				}
-				x += xDir; y += yDir;
-				coordinates.Add(new Tuple<int, int>(x, y));
+				else if (travelled[r + rDir][i + iDir] && travelled.Any(x => x.Any(y => !y)))
+				{
+					RotateClockwise(ref iDir, ref rDir);
+				}
+				else
+				{
+					i = nextI;
+					r = nextR;
+				}
 			}
-			return coordinates.Select(x => array[x.Item2][x.Item1]).ToArray();
+			return trail.ToArray();
 		}
 
-		private static void RotateClockwise(int xDir, int yDir)
+		private static void RotateClockwise(ref int xDir, ref int yDir)
 		{
 			int temp = xDir;
 			xDir = yDir * -1;
