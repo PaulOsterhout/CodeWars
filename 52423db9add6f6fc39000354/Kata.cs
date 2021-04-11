@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace CodeWars.Kata_52423db9add6f6fc39000354
@@ -7,6 +7,41 @@ namespace CodeWars.Kata_52423db9add6f6fc39000354
 	public class ConwayLife
 	{
 		public static int[,] GetGeneration(int[,] cells, int generation)
+		{
+			return Better(cells, generation);
+		}
+
+		private static int[,] Better(int[,] cells, int generation)
+		{
+			HashSet<Point> points = Enumerable.Range(0, cells.GetLength(0))
+				.SelectMany(y => Enumerable.Range(0, cells.GetLength(1))
+				.Select(x => new Point(x,y)))
+				.Where(c => cells[c.Y,c.X] > 0)
+				.ToHashSet();
+
+			IEnumerable<Point> GetSurroundingPoints(Point point) => Enumerable.Range(-1, 3)
+				.SelectMany(y => Enumerable.Range(-1, 3)
+				.Select(x => new Point(point.X + x, point.Y + y)));
+			int GetValue(Point point) => points.Contains(point) ? 1 : 0;
+			int GetSum(Point point) => GetSurroundingPoints(point).Sum(GetValue);
+
+			while (generation-- > 0)
+			{
+				HashSet<Point> pointsToScan = points.SelectMany(GetSurroundingPoints).ToHashSet();
+				points = pointsToScan.Where(point => GetSum(point) == 3 || (GetSum(point) == 4 && GetValue(point) == 1))
+					.ToHashSet();
+			}
+
+			int minX = points.Min(p => p.X);
+			int maxX = points.Max(p => p.X) + 1;
+			int minY = points.Min(p => p.Y);
+			int maxY = points.Max(p => p.Y) + 1;
+			int[,] result = new int[maxY - minY,maxX - minX];
+			for (int y = minY; y < maxY; y++) for (int x = minX; x < maxX; x++) result[y - minY,x - minX] = GetValue(new Point(x,y));
+			return result;
+		}
+
+		private static int[,] Mine(int[,] cells, int generation)
 		{
 			for (int index = 0; index < generation; index++)
 			{
@@ -71,7 +106,7 @@ namespace CodeWars.Kata_52423db9add6f6fc39000354
 					}
 				}
 				if (!empty) break;
-				xStart++;
+				yStart++;
 			}
 			for (int y = yLength - 1; y >= 0; y--)
 			{
@@ -85,7 +120,7 @@ namespace CodeWars.Kata_52423db9add6f6fc39000354
 					}
 				}
 				if (!empty) break;
-				xEnd--;
+				yEnd--;
 			}
 			int xLength = xEnd - xStart + 1;
 			for (int x = xStart; x < xLength; x++)
@@ -100,22 +135,22 @@ namespace CodeWars.Kata_52423db9add6f6fc39000354
 					}
 				}
 				if (!empty) break;
-				yStart++;
+				xStart++;
 			}
-			// for (int x = xEnd; x >= xStart; x--)
-			// {
-			// 	bool empty = true;
-			// 	for (int y = yStart; y <= yEnd; y++)
-			// 	{
-			// 		if (cells[x, y] == 1)
-			// 		{
-			// 			empty = false;
-			// 			break;
-			// 		}
-			// 	}
-			// 	if (!empty) break;
-			// 	yEnd--;
-			// }
+			for (int x = xEnd; x >= xStart; x--)
+			{
+				bool empty = true;
+				for (int y = yStart; y <= yEnd; y++)
+				{
+					if (cells[x, y] == 1)
+					{
+						empty = false;
+						break;
+					}
+				}
+				if (!empty) break;
+				xEnd--;
+			}
 			int[,] trimmedCells = new int[xEnd - xStart + 1, yEnd - yStart + 1];
 			for (int x = xStart; x <= xEnd; x++)
 			{
