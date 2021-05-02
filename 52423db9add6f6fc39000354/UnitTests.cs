@@ -117,16 +117,33 @@ namespace CodeWars.Kata_52423db9add6f6fc39000354
 				new Point(2,2)
 			};
 			CollectionAssert.AreEqual(expected2, surrounding);
-			HashSet<Point> actualPoints = points.SelectMany(GetSurroundingPoints).ToHashSet();
+			HashSet<Point> pointsToScan = points.SelectMany(GetSurroundingPoints).ToHashSet();
 			HashSet<Point> expected3 = new HashSet<Point>
 			{
+				new Point(-1,-1),
+				new Point(0,-1),
+				new Point(1,-1),
+				new Point(-1,0),
 				new Point(0,0),
+				new Point(1,0),
+				new Point(2,0),
+				new Point(3,0),
+				new Point(-1,1),
+				new Point(0,1),
 				new Point(1,1),
 				new Point(2,1),
+				new Point(3,1),
+				new Point(-1,2),
 				new Point(0,2),
-				new Point(1,2)
+				new Point(1,2),
+				new Point(2,2),
+				new Point(3,2),
+				new Point(-1,3),
+				new Point(0,3),
+				new Point(1,3),
+				new Point(2,3)
 			};
-			CollectionAssert.AreEqual(expected3, actualPoints);
+			CollectionAssert.AreEqual(expected3.OrderBy(point => point.Y).OrderBy(point => point.X), pointsToScan.OrderBy(point => point.Y).OrderBy(point => point.X));
 		}
 	}
 }
