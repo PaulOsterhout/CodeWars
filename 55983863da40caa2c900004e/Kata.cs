@@ -41,7 +41,7 @@ namespace CodeWars.Kata_55983863da40caa2c900004e
 			HashSet<string> combinations = new HashSet<string>();
 			foreach (int firstDigit in digits.Distinct())
 			{
-				List<int> innerDigits = digits.Distinct().OrderBy(x => x).ToList();
+				List<int> innerDigits = digits.OrderBy(x => x).ToList();
 				innerDigits.Remove(firstDigit);
 				foreach (string combination in GetCombinations(innerDigits))
 				{
